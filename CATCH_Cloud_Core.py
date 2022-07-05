@@ -72,6 +72,9 @@ class CA_Core():
     def __set_default(self):
         CA_log.set_loglevel(self.__loglevel)
         self.__service = int(cd.select_cloud())
+        if self.__service != 2:
+            PRINTI("Under Development....")
+            return CA_ERROR
         id, pw = cd.login_data()
         self.__credential = [id, pw]
         return CA_OK
