@@ -1,4 +1,5 @@
 from onedrive_collector.collector import *
+from onedrive_collector.personal_vault import *
 import module.Cloud_Display as cd
 
 class OneDrive_connector:
@@ -36,10 +37,10 @@ class OneDrive_connector:
 
     @staticmethod
     def __call_pv(credential):
-        PRINTI("OneDrive Authentication(Personal Vault Version) .... Start")
+        PRINTI("OneDrive (Personal Vault Version) .... Start")
         pv = Personal_Vault(credential=credential)
         p_result = pv.run()
-        PRINTI("OneDrive Authentication(Personal Vault Version) .... End")
+        PRINTI("OneDrive (Personal Vault Version) .... End")
         return pv, p_result
 
     @staticmethod

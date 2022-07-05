@@ -36,7 +36,6 @@ History
 """
 
 from onedrive_collector.explorer import *
-from onedrive_collector.PV_authenticator_and_explorer import *
 
 class Collector:
     def __init__(self, onedrive_data, auth_data):
