@@ -76,6 +76,7 @@ class Collector:
             PRINTI("Download " + file_name + " Done")
         else:
             print("[!] Download_error!")
+            print("[!] Please click 'downloadURL' for download file!")
 
     def search_file_by_date(self, start, end):
         search_result = []
