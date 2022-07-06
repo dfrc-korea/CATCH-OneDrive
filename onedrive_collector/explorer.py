@@ -47,6 +47,8 @@ class Exploration:
         self.__number_of_recycle_file = None
         self.__shared_file_list = []
         self.__number_of_shared_file = None
+        self.__recent_file_list = []
+        self.__number_of_recent_file = None
         self.__version_history = []
         self.__total_file_list = []
         self.__total_file_count = None
@@ -69,6 +71,10 @@ class Exploration:
             PRINT('Set Shared File List Error')
             return CA_ERROR
 
+        if self.__set_recent_file_list() == CA_ERROR:
+            PRINT('Set Recent File List Error')
+            return CA_ERROR
+
         if self.__combine_file_list() == CA_ERROR:
             PRINT('Combine File List Error')
             return CA_ERROR
@@ -77,11 +83,22 @@ class Exploration:
             PRINT('Divie File List Error')
             return CA_ERROR
 
-        if self.__download_thumbnails() == CA_ERROR:
-            PRINT('Collecting Thumbnails Error')
-            return CA_ERROR
+        # if self.__download_thumbnails() == CA_ERROR:
+        #     PRINT('Collecting Thumbnails Error')
+        #     return CA_ERROR
+        #
+        # if self.__set_version_history() == CA_ERROR:
+        #     return CA_ERROR
 
-        if self.__set_version_history() == CA_ERROR:
+        return CA_OK
+
+    def __set_recent_file_list(self):
+        try:
+            file_list = self.__request_file_list(qt='mru')
+            self.__recent_file_list = self.__remake_file_list(file_list, 'root', self.__recent_file_list, qt='mru')
+            self.__flag = 0
+            self.__number_of_recent_file = len(self.__recent_file_list)
+        except:
             return CA_ERROR
 
         return CA_OK
@@ -181,6 +198,8 @@ class Exploration:
             name_id = 'recyclebin'
         elif qt == 'sharedby':
             name_id = 'sharedby'
+        elif qt == 'mru':
+            name_id = 'recent'
         elif qt == '':
             name_id = id
 
@@ -234,8 +253,8 @@ class Exploration:
             a.write(response.content)
 
     def __combine_file_list(self):
-        self.__total_file_count = self.__number_of_normal_file + self.__number_of_recycle_file
-        self.__total_file_list = self.__normal_file_list + self.__recycle_file_list
+        self.__total_file_count = self.__number_of_normal_file + self.__number_of_recycle_file + self.__number_of_shared_file + self.__number_of_recent_file
+        self.__total_file_list = self.__normal_file_list + self.__recycle_file_list + self.__shared_file_list + self.__recent_file_list
 
         if self.__total_file_count == 0:
             return CA_ERROR
