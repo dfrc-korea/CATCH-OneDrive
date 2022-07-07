@@ -37,6 +37,23 @@ def select_menu():
     return int(num)
 
 
+def select_show_menu():
+    print()
+    print("###########################")
+    print("######### M.E.N.U #########")
+    print("###########################")
+    print("#    0. EXIT              #")
+    print("#    1. ALL_FILE_LIST     #")
+    print("#    2. MY_FILES          #")
+    print("#    3. RECENT            #")
+    print("#    4. SHARED            #")
+    print("#    5. RECYCLE_BIN       #")
+    print()
+    num = input("Select Menu: ")
+    return int(num)
+
+
+
 def search_menu():
     print()
     print("###########################")
