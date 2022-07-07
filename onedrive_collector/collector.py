@@ -94,7 +94,7 @@ class Collector:
                 search_result.append(file)
                 continue
 
-        return self.show_file_list_local(search_result)
+        return self.show_file_list_local(search_result, "SEARCH")
 
     def show_file_list(self):
         cnt = 0
@@ -177,11 +177,10 @@ class Collector:
 
         self.__re_file_list = result
 
-    @staticmethod
-    def show_file_list_local(file_list):
+    def show_file_list_local(self, file_folder_list, type):
         """Search 결과 출력 메소드
 
-                        .. note::  일반 출력과 다르게 검색된 결과만 출력 \n
+                        .. note::  일반 출력과 다르게 선별된 결과만 출력 \n
 
                         :return:
                             no file     --  None
@@ -190,6 +189,27 @@ class Collector:
         result = list()
         result.append(['file name', 'size(bytes)', 'mimeType', 'createdTime(UTC+9)', 'modifiedTime(UTC+9)', 'file id',
                        'personal?', 'downloadURL'])
+
+        folder_list, file_list = self.__onedrive.devide_file_list_local(file_folder_list)
+
+        for fol in folder_list:
+            ticks = fol['creationDate']
+            converted_ticks = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks / 10)
+            converted_ticks.strftime("%Y-%m-%d %H:%M:%S")
+            ticks_modi = fol['modifiedDate']
+            converted_ticks_modi = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks_modi / 10)
+            converted_ticks_modi.strftime("%Y-%m-%d %H:%M:%S")
+
+            if fol.get('vault') == None:
+                result.append([fol['name'], fol['size'], 'folder', converted_ticks,
+                               converted_ticks_modi,
+                               fol['id'], 'No', "None"])
+
+            else:
+                result.append([fol['name'], fol['size'], 'folder', converted_ticks,
+                               converted_ticks_modi,
+                               fol['id'], 'Yes', "None"])
+
         for file in file_list:
             ticks = file['creationDate']
             converted_ticks = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks / 10)
@@ -201,12 +221,12 @@ class Collector:
             if file.get('vault') == None:
                 result.append([file['name'] + file['extension'], file['size'], file['mimeType'], converted_ticks,
                                converted_ticks_modi,
-                               file['id'], 'False', file['urls']['download']])
+                               file['id'], 'NO', file['urls']['download']])
             else:
                 result.append(
                     [file['name'] + file['extension'], file['size'], file['mimeType'], converted_ticks,
                      converted_ticks_modi, file['id'],
-                     'True', file['urls']['download']])
+                     'YES', file['urls']['download']])
 
         cnt = 0
         new_list = [result[0]]
@@ -237,7 +257,7 @@ class Collector:
             return None
         print("\n")
 
-        print("======DRIVE_FILE_LIST======")
+        print("======"+type+"_FILE_LIST======")
         print("FILE_COUNT:" + str(file_count - 1))
         print(tabulate.tabulate(new_list, headers="firstrow", tablefmt='github', showindex=range(1, file_count),
                                 numalign="left"))
@@ -250,7 +270,7 @@ class Collector:
             if name in file['ownerName']:
                 search_result.append(file)
 
-        return self.show_file_list_local(search_result)
+        return self.show_file_list_local(search_result, "SEARCH")
 
 
     def search_file(self, q):
@@ -262,7 +282,7 @@ class Collector:
             for child in search_response['items'][0]['folder']['children']:
                 search_result.append(child)
 
-        self.show_file_list_local(search_result)
+        self.show_file_list_local(search_result, 'SEARCH')
 
     def __request_search_file(self, q):
         cookies = {
@@ -302,3 +322,16 @@ class Collector:
         # PRINT('Extract json file done. >> search_' + q + '.json')
 
         return json.loads(response.text)
+
+    def show_my_files_list(self):
+        return self.show_file_list_local(self.__onedrive.get_my_files(), "MY_FILE")
+
+    def show_recent_list(self):
+        return self.show_file_list_local(self.__onedrive.get_recent(), "RECENT")
+
+    def show_shared_list(self):
+        return self.show_file_list_local(self.__onedrive.get_shared(), "SHARED")
+
+    def show_recycle_list(self):
+        return self.show_file_list_local(self.__onedrive.get_recycle(),"RECYCLE_BIN")
+

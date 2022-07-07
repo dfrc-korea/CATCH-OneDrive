@@ -83,12 +83,12 @@ class Exploration:
             PRINT('Divie File List Error')
             return CA_ERROR
 
-        # if self.__download_thumbnails() == CA_ERROR:
-        #     PRINT('Collecting Thumbnails Error')
-        #     return CA_ERROR
-        #
-        # if self.__set_version_history() == CA_ERROR:
-        #     return CA_ERROR
+        if self.__download_thumbnails() == CA_ERROR:
+            PRINT('Collecting Thumbnails Error')
+            return CA_ERROR
+
+        if self.__set_version_history() == CA_ERROR:
+            return CA_ERROR
 
         return CA_OK
 
@@ -313,3 +313,28 @@ class Exploration:
                 self.__file_list.append(file)
 
         return CA_OK
+
+    @staticmethod
+    def devide_file_list_local(file_folder_list):
+        folder_list = []
+        file_list = []
+        for file in file_folder_list:
+            if 'folder' in file:
+                folder_list.append(file)
+            else:
+                file_list.append(file)
+
+        return folder_list, file_list
+
+    def get_my_files(self):
+        return self.__normal_file_list
+
+    def get_recent(self):
+        return self.__recent_file_list
+
+    def get_shared(self):
+        return self.__shared_file_list
+
+    def get_recycle(self):
+        return self.__recycle_file_list
+

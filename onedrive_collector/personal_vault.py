@@ -51,6 +51,8 @@ class Personal_Vault:
         self.__number_of_recycle_file = None
         self.__shared_file_list = []
         self.__number_of_shared_file = None
+        self.__recent_file_list = []
+        self.__number_of_recent_file = None
         self.__version_history = []
         self.__total_file_list = []
         self.__total_file_count = None
@@ -227,6 +229,10 @@ class Personal_Vault:
                     PRINT('Set Shared File List Error')
                     return CA_ERROR
 
+                if self.__set_recent_file_list() == CA_ERROR:
+                    PRINT('Set Recent File List Error')
+                    return CA_ERROR
+
                 if self.__combine_file_list() == CA_ERROR:
                     PRINT('Combine File List Error')
                     return CA_ERROR
@@ -259,7 +265,19 @@ class Personal_Vault:
             if menu == 0:  # exit
                 break
             elif menu == 1:  # all of file
-                self.show_file_list()
+                show_menu = cd.select_show_menu()
+                if show_menu == 0:
+                    continue
+                elif show_menu == 1:
+                    self.show_file_list()
+                elif show_menu == 2:
+                    self.show_my_files_list()
+                elif show_menu == 3:
+                    self.show_recent_list()
+                elif show_menu == 4:
+                    self.show_shared_list()
+                elif show_menu == 5:
+                    self.show_recycle_list()
             elif menu == 2:  # select file
                 self.show_file_list()
                 while True:
@@ -312,7 +330,7 @@ class Personal_Vault:
             if name in file['ownerName']:
                 search_result.append(file)
 
-        return self.show_file_list_local(search_result)
+        return self.show_file_list_local(search_result, "SEARCH")
 
     def search_file_by_date(self, start, end):
         search_result = []
@@ -330,10 +348,9 @@ class Personal_Vault:
                 search_result.append(file)
                 continue
 
-        return self.show_file_list_local(search_result)
+        return self.show_file_list_local(search_result, "SEARCH")
 
-    @staticmethod
-    def show_file_list_local(file_list):
+    def show_file_list_local(self, file_folder_list, type):
         """Search 결과 출력 메소드
 
                         .. note::  일반 출력과 다르게 검색된 결과만 출력 \n
@@ -345,6 +362,27 @@ class Personal_Vault:
         result = list()
         result.append(['file name', 'size(bytes)', 'mimeType', 'createdTime(UTC+9)', 'modifiedTime(UTC+9)', 'file id',
                        'personal?', 'downloadURL'])
+
+        folder_list , file_list = self.devide_file_list_local(file_folder_list)
+
+        for fol in folder_list:
+            ticks = fol['creationDate']
+            converted_ticks = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks / 10)
+            converted_ticks.strftime("%Y-%m-%d %H:%M:%S")
+            ticks_modi = fol['modifiedDate']
+            converted_ticks_modi = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks_modi / 10)
+            converted_ticks_modi.strftime("%Y-%m-%d %H:%M:%S")
+
+            if fol.get('vault') == None:
+                result.append([fol['name'], fol['size'], 'folder', converted_ticks,
+                               converted_ticks_modi,
+                               fol['id'], 'No', "None"])
+
+            else:
+                result.append([fol['name'], fol['size'], 'folder', converted_ticks,
+                               converted_ticks_modi,
+                               fol['id'], 'Yes', "None"])
+
         for file in file_list:
             ticks = file['creationDate']
             converted_ticks = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks / 10)
@@ -392,7 +430,7 @@ class Personal_Vault:
             return None
         print("\n")
 
-        print("======DRIVE_FILE_LIST======")
+        print("======" + type + "_FILE_LIST======")
         print("FILE_COUNT:" + str(file_count - 1))
         print(tabulate.tabulate(new_list, headers="firstrow", tablefmt='github', showindex=range(1, file_count),
                                 numalign="left"))
@@ -406,7 +444,7 @@ class Personal_Vault:
             for child in search_response['items'][0]['folder']['children']:
                 search_result.append(child)
 
-        self.show_file_list_local(search_result)
+        self.show_file_list_local(search_result, "SEARCH")
 
     def __request_search_file(self, q):
         cookies = {
@@ -501,7 +539,7 @@ class Personal_Vault:
             if len(mtype) >= 20:
                 mtype = mtype[0:8] + '....' + mtype[-6:]
 
-            new_list.append([name, file[1], mtype, file[3], file[4], file[5], file[6], file[7]])
+            new_list.append([name, file[1], mtype, file[3], file[4], file[5], file[6], file[7], file[8]])
 
         print("======DRIVE_FILE_LIST======")
         print("FILE_COUNT:" + str(file_count - 1))
@@ -511,7 +549,29 @@ class Personal_Vault:
     def __set_show_file_list(self):
         result = list()
         result.append(['file name', 'size(bytes)', 'mimeType', 'createdTime(UTC+9)', 'modifiedTime(UTC+9)', 'file id',
-                       'personal?', 'downloadURL'])
+                       'personal?', 'Deleted?', 'downloadURL'])
+        for fol in self.__folder_list:
+            ticks = fol['creationDate']
+            converted_ticks = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks / 10)
+            converted_ticks.strftime("%Y-%m-%d %H:%M:%S")
+            ticks_modi = fol['modifiedDate']
+            converted_ticks_modi = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks_modi / 10)
+            converted_ticks_modi.strftime("%Y-%m-%d %H:%M:%S")
+
+            if fol.get('vault') == None:
+                if fol.get('isRecycled') == None:
+                    result.append([fol['name'], fol['size'], 'folder', converted_ticks,
+                                   converted_ticks_modi,
+                                   fol['id'], 'No', 'No', "None"])
+                else:
+                    result.append([fol['name'], fol['size'], 'folder', converted_ticks,
+                                   converted_ticks_modi,
+                                   fol['id'], 'No', 'Yes', "None"])
+            else:
+                result.append([fol['name'], fol['size'], 'folder', converted_ticks,
+                               converted_ticks_modi,
+                               fol['id'], 'Yes', 'No', "None"])
+
         for file in self.__file_list:
             ticks = file['creationDate']
             converted_ticks = datetime.datetime(1, 1, 1, 9) + datetime.timedelta(microseconds=ticks / 10)
@@ -521,14 +581,19 @@ class Personal_Vault:
             converted_ticks_modi.strftime("%Y-%m-%d %H:%M:%S")
 
             if file.get('vault') == None:
-                result.append([file['name'] + file['extension'], file['size'], file['mimeType'], converted_ticks,
-                               converted_ticks_modi,
-                               file['id'], 'False', file['urls']['download']])
+                if file.get('isRecycled') == None:
+                    result.append([file['name'] + file['extension'], file['size'], file['mimeType'], converted_ticks,
+                                   converted_ticks_modi,
+                                   file['id'], 'No', 'No', file['urls']['download']])
+                else:
+                    result.append([file['name'] + file['extension'], file['size'], file['mimeType'], converted_ticks,
+                                   converted_ticks_modi,
+                                   file['id'], 'No', 'Yes', file['urls']['download']])
             else:
                 result.append(
                     [file['name'] + file['extension'], file['size'], file['mimeType'], converted_ticks,
                      converted_ticks_modi, file['id'],
-                     'True', file['urls']['download']])
+                     'Yes', 'No', file['urls']['download']])
 
         self.__show_file_list = result
 
@@ -642,6 +707,17 @@ class Personal_Vault:
 
         return CA_OK
 
+    def __set_recent_file_list(self):
+        try:
+            file_list = self.__request_file_list(qt='mru')
+            self.__recent_file_list = self.__remake_file_list(file_list, 'root', self.__recent_file_list, qt='mru')
+            self.__flag = 0
+            self.__number_of_recent_file = len(self.__recent_file_list)
+        except:
+            return CA_ERROR
+
+        return CA_OK
+
     def __download_thumbnails(self):
         PRINT('Collecting Thumbnails Start')
         try:
@@ -703,6 +779,8 @@ class Personal_Vault:
             name_id = 'recyclebin'
         elif qt == 'sharedby':
             name_id = 'sharedby'
+        elif qt == 'mru':
+            name_id = 'recent'
         elif qt == '':
             name_id = id
 
@@ -756,8 +834,8 @@ class Personal_Vault:
             a.write(response.content)
 
     def __combine_file_list(self):
-        self.__total_file_count = self.__number_of_normal_file + self.__number_of_recycle_file
-        self.__total_file_list = self.__normal_file_list + self.__recycle_file_list
+        self.__total_file_count = self.__number_of_normal_file + self.__number_of_recycle_file + self.__number_of_shared_file + self.__number_of_recent_file
+        self.__total_file_list = self.__normal_file_list + self.__recycle_file_list + self.__shared_file_list + self.__recent_file_list
 
         if self.__total_file_count == 0:
             return CA_ERROR
@@ -816,3 +894,27 @@ class Personal_Vault:
                 self.__file_list.append(file)
 
         return CA_OK
+
+    @staticmethod
+    def devide_file_list_local(file_folder_list):
+        folder_list = []
+        file_list = []
+        for file in file_folder_list:
+            if 'folder' in file:
+                folder_list.append(file)
+            else:
+                file_list.append(file)
+
+        return folder_list, file_list
+
+    def show_my_files_list(self):
+        return self.show_file_list_local(self.__normal_file_list, "MY_FILE")
+
+    def show_recent_list(self):
+        return self.show_file_list_local(self.__recent_file_list, "RECENT")
+
+    def show_shared_list(self):
+        return self.show_file_list_local(self.__shared_file_list, "SHARED")
+
+    def show_recycle_list(self):
+        return self.show_file_list_local(self.__recycle_file_list,"RECYCLE_BIN")

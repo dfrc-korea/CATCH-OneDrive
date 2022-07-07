@@ -69,7 +69,19 @@ class OneDrive_connector:
             if menu == 0:  # exit
                 break
             elif menu == 1:  # all of file
-                c.show_file_list()
+                show_menu = cd.select_show_menu()
+                if show_menu == 0:
+                    continue
+                elif show_menu == 1:
+                    c.show_file_list()
+                elif show_menu == 2:
+                    c.show_my_files_list()
+                elif show_menu == 3:
+                    c.show_recent_list()
+                elif show_menu == 4:
+                    c.show_shared_list()
+                elif show_menu == 5:
+                    c.show_recycle_list()
             elif menu == 2:  # select file
                 c.show_file_list()
                 file_len = c.get_num_of_file_list()
