@@ -71,7 +71,6 @@ class Personal_Vault:
         return CA_OK
 
     def __login(self):
-        # 버그 존재 사용 금지
         try:
             with sync_playwright() as playwright:
                 # TRUE = 화면 안보임, FALSE = 화면 보임
@@ -81,29 +80,37 @@ class Personal_Vault:
                 # Open new page
                 page = context.new_page()
 
-                page.goto("https://onedrive.live.com/about/ko-kr/signin/")
+                page.goto("https://onedrive.live.com/about/en-us/signin/")
 
-                page.frame_locator("section[role=\"main\"] iframe").locator("[placeholder=\"전자 메일\\, 휴대폰 또는 Skype\"]").click()
-                page.frame_locator("section[role=\"main\"] iframe").locator("[placeholder=\"전자 메일\\, 휴대폰 또는 Skype\"]").fill(self.__id)
+                page.frame_locator("section[role=\"main\"] iframe").locator(
+                    "//*[@id=\"placeholder\"]/div[2]/div/input").click()
+                page.frame_locator("section[role=\"main\"] iframe").locator(
+                    "//*[@id=\"placeholder\"]/div[2]/div/input").fill(self.__id)
                 page.wait_for_timeout(1000)
-                page.frame_locator("section[role=\"main\"] iframe").locator("[placeholder=\"전자 메일\\, 휴대폰 또는 Skype\"]").press(
+                page.frame_locator("section[role=\"main\"] iframe").locator(
+                    "//*[@id=\"placeholder\"]/div[2]/div/input").press(
                     "Enter")
 
-                # Click text=사용자가 만든 계정
                 page.wait_for_timeout(1000)
-                if page.frame_locator("section[role=\"main\"] iframe").locator("text=자세한 정보 필요").is_visible():
-                    #p_or_b = input(Colors.YELLOW + "[>>] Which Account? Business: 1, Personal: 2  >>" + Colors.RESET)
-                    p_or_b = 2
-                    if p_or_b == 1:
-                        with page.expect_navigation():
-                            page.frame_locator("section[role=\"main\"] iframe").locator("text=IT 부서에서 만든 계정").click()
-                            PRINT('Access - Business')
+                try:
+                    if page.frame_locator("section[role=\"main\"] iframe").locator(
+                            "text=We need a little more help").is_visible():
+                        # p_or_b = input(Colors.YELLOW + "[>>] Which Account? Business: 1, Personal: 2  >>" + Colors.RESET)
+                        p_or_b = 2
+                        if p_or_b == 1:
+                            with page.expect_navigation():
+                                page.frame_locator("section[role=\"main\"] iframe").locator(
+                                    "text=Created by your IT department").click()
+                                PRINT('Access - Business')
+                        else:
+                            with page.expect_navigation():
+                                page.frame_locator("section[role=\"main\"] iframe").locator("text=Created by you").nth(
+                                    1).click()
+                                PRINT('Access - Personal')
                     else:
-                        with page.expect_navigation():
-                            page.frame_locator("section[role=\"main\"] iframe").locator("text=사용자가 만든 계정").click()
-                            PRINT('Access - Personal')
-                else:
-                    PRINT('Access')
+                        PRINT('Access')
+                except:
+                    pass
 
                 page.locator("input[name=\"passwd\"]").fill(self.__password)
 
@@ -112,14 +119,14 @@ class Personal_Vault:
 
                 page.wait_for_timeout(500)
                 # SMS, E-mail
-                if page.locator("text=본인 여부 확인").is_visible():
+                if page.locator("text=Verify your identity").is_visible():
                     factor2_texts = page.locator("div[role=\"button\"]").all_inner_texts()
                     cnt = 1
                     if len(factor2_texts) > 1:
                         for factor2_text in factor2_texts:
                             PRINTI(str(cnt) + '. ' + factor2_text.replace('\n', ''))
                             cnt += 1
-                        factor2_cnt = input("몇 번째로 인증하시겠습니까? >> ")
+                        factor2_cnt = input("What number would you like to use to authenticate? >> ")
                         page.locator("div[role=\"button\"]").locator(
                             "text =" + factor2_texts[int(factor2_cnt) - 1].replace('\t', '').replace('\n', '')).click()
                     else:
@@ -127,10 +134,10 @@ class Personal_Vault:
                             page.locator("div[role=\"button\"]").click()
 
                     page.wait_for_timeout(500)
-                    if page.locator("text=전화 번호 확인").is_visible():
+                    if page.locator("text=Verify your phone number").is_visible():
                         # SMS
                         PRINTI(page.locator("xpath=//*[@id=\"idDiv_SAOTCS_ProofConfirmationDesc\"]").text_content())
-                        factor2_sms = input("전화 번호 마지막 4자리를 넣어주세요 >>")
+                        factor2_sms = input("Last 4 digits of phone number >>")
                         page.locator("xpath=//*[@id=\"idTxtBx_SAOTCS_ProofConfirmation\"]").fill(factor2_sms)
                         page.locator("xpath=//*[@id=\"idSubmit_SAOTCS_SendCode\"]").click()
                     else:
@@ -138,23 +145,23 @@ class Personal_Vault:
                         PRINTI(page.locator("xpath=//*[@id=\"idDiv_SAOTCC_Description\"]").text_content())
 
                     page.wait_for_timeout(500)
-                    factor2 = input("코드를 넣어주세요 >>")
-                    page.locator("[placeholder=\"코드\"]").click()
-                    page.locator("[placeholder=\"코드\"]").fill(factor2)
-                    page.locator("input:has-text(\"확인\")").click()
+                    factor2 = input("Enter code >>")
+                    page.locator("[placeholder=\"Code\"]").click()
+                    page.locator("[placeholder=\"Code\"]").fill(factor2)
+                    page.locator("input:has-text(\"Verify\")").click()
 
-                elif page.locator("text=로그인 요청 승인").is_visible():
+                elif page.locator("text=Approve sign in request").is_visible():
                     # App Login
                     PRINTI(page.locator("xpath=//*[@id=\"idDiv_SAOTCAS_Description\"]").text_content())
-                    factor2 = input("승인이 완료되면 엔터를 눌러주세요.")
+                    factor2 = input("Please press Enter when approval is completed.")
 
                 # 영구 저장 '아니오' 클릭
                 with page.expect_navigation():
-                    page.locator("text=아니요").click()
+                    page.locator("text=No").click()
                 page.wait_for_timeout(1000)
                 # 개인 중요 보관소 open
 
-                PRINT("개인 중요 보관소는 인증코드가 필요합니다. 다음의 내용들을 입력해주세요.")
+                PRINT("Personal Vault requires an authentication code. Please enter the following contents.")
                 time.sleep(1)
                 with page.expect_navigation():
                     with page.expect_popup() as popup_info:
@@ -245,8 +252,8 @@ class Personal_Vault:
                     PRINT('Collecting Thumbnails Error')
                     return CA_ERROR
 
-                if self.__set_version_history() == CA_ERROR:
-                    return CA_ERROR
+                # if self.__set_version_history() == CA_ERROR:
+                #     return CA_ERROR
 
                 if self.__run_collector() == CA_ERROR:
                     return CA_ERROR

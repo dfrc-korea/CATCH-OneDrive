@@ -87,8 +87,8 @@ class Exploration:
             PRINT('Collecting Thumbnails Error')
             return CA_ERROR
 
-        if self.__set_version_history() == CA_ERROR:
-            return CA_ERROR
+        # if self.__set_version_history() == CA_ERROR:
+        #     return CA_ERROR
 
         return CA_OK
 
