@@ -67,7 +67,6 @@ Activate venv(if not activated):
 ```
 cd venv\Scripts
 Activate.bat
-cd ..\..
 ```
 
 Run CATCH:
