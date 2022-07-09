@@ -327,11 +327,19 @@ class Personal_Vault:
         file_len = len(self.__file_list)
         self.__set_show_file_list()
         while True:
-            menu = cd.select_menu()
+            try:
+                menu = cd.select_menu()
+            except:
+                PRINTE("Please Input Correct Number")
+                continue
             if menu == 0:  # exit
                 break
             elif menu == 1:  # all of file
-                show_menu = cd.select_show_menu()
+                try:
+                    show_menu = cd.select_show_menu()
+                except:
+                    PRINTE("Please Input Correct Number")
+                    continue
                 if show_menu == 0:
                     continue
                 elif show_menu == 1:
@@ -347,19 +355,26 @@ class Personal_Vault:
             elif menu == 2:  # select file
                 self.show_file_list()
                 while True:
-                    download_number = int(input("Put file numbers (exit:0): "))
-                    if download_number == 0:
-                        break
+                    try:
+                        download_number = int(input("Put file numbers (exit:0): "))
+                        if download_number == 0:
+                            break
 
-                    if download_number < 0:
-                        print("\n Please put correct number.")
-                        continue
-                    elif download_number > file_len:
-                        print("Please put correct number.")
-                        continue
-                    self.download_file(download_number)
+                        if download_number < 0:
+                            print("\n Please put correct number.")
+                            continue
+                        elif download_number > file_len:
+                            print("Please put correct number.")
+                            continue
+                        self.download_file(download_number)
+                    except:
+                        PRINTE("Please Input Correct Number")
             elif menu == 3:  # search
-                sm = cd.search_menu()
+                try:
+                    sm = cd.search_menu()
+                except:
+                    PRINTE("Please Input Correct Number")
+                    continue
                 s_input = CInput()
                 if sm == 0:
                     continue

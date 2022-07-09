@@ -64,11 +64,19 @@ class OneDrive_connector:
         file_len = c.get_num_of_file_list()
         c.set_file_list()
         while True:
-            menu = cd.select_menu()
+            try:
+                menu = cd.select_menu()
+            except:
+                PRINTE("Please Input Correct Number")
+                continue
             if menu == 0:  # exit
                 break
             elif menu == 1:  # all of file
-                show_menu = cd.select_show_menu()
+                try:
+                    show_menu = cd.select_show_menu()
+                except:
+                    PRINTE("Please Input Correct Number")
+                    continue
                 if show_menu == 0:
                     continue
                 elif show_menu == 1:
@@ -85,19 +93,26 @@ class OneDrive_connector:
                 c.show_file_list()
                 file_len = c.get_num_of_file_list()
                 while True:
-                    download_number = int(input("Put file numbers (exit:0): "))
-                    if download_number == 0:
-                        break
+                    try:
+                        download_number = int(input("Put file numbers (exit:0): "))
+                        if download_number == 0:
+                            break
 
-                    if download_number < 0:
-                        print("\n Please put correct number.")
-                        continue
-                    elif download_number > file_len:
-                        print("Please put correct number.")
-                        continue
-                    c.download_file(download_number)
+                        if download_number < 0:
+                            print("\n Please Input correct number.")
+                            continue
+                        elif download_number > file_len:
+                            print("Please Input correct number.")
+                            continue
+                        c.download_file(download_number)
+                    except:
+                        PRINTE("Please Input Correct Number")
             elif menu == 3:  # search
-                sm = cd.search_menu()
+                try:
+                    sm = cd.search_menu()
+                except:
+                    PRINTE("Please Input Correct Number")
+                    continue
                 s_input = CInput()
                 if sm == 0:
                     continue
