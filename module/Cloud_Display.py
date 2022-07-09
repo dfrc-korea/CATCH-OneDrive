@@ -10,63 +10,76 @@ def start_tool():
 
 
 def select_cloud():
-    print("###########################")
-    print("######## C.L.O.U.D ########")
-    print("###########################")
-    print("#    1. GOOGLE DRIVE      #")
-    print("#    2. ONEDRIVE          #")
-    print("#    3. DROPBOX           #")
-    print("#    4. BOX               #")
-    print("#    5. MEGA              #")
-    print()
-    cloud = input("Select Cloud Type: ")
-    return cloud
+    while True:
+        print("###########################")
+        print("######## C.L.O.U.D ########")
+        print("###########################")
+        print("#    1. GOOGLE DRIVE      #")
+        print("#    2. ONEDRIVE          #")
+        print("#    3. DROPBOX           #")
+        print("#    4. BOX               #")
+        print("#    5. MEGA              #")
+        print()
+        cloud = input("Select Cloud Type: ")
+        if (int(cloud) >= 1 and int(cloud) <=5):
+            return cloud
+        else:
+            print("Please Input Correct Number(1~5)")
 
 
 def select_menu():
-    print()
-    print("###########################")
-    print("######### M.E.N.U #########")
-    print("###########################")
-    print("#    0. EXIT              #")
-    print("#    1. SHOW_FILE_LIST    #")
-    print("#    2. DOWNLOAD_FILE     #")
-    print("#    3. SEARCH_FILE       #")
-    print()
-    num = input("Select Menu: ")
-    return int(num)
+    while True:
+        print("###########################")
+        print("######### M.E.N.U #########")
+        print("###########################")
+        print("#    0. EXIT              #")
+        print("#    1. SHOW_FILE_LIST    #")
+        print("#    2. DOWNLOAD_FILE     #")
+        print("#    3. SEARCH_FILE       #")
+        print()
+        num = input("Select Menu: ")
+        if (int(num) >= 0 and int(num) <= 3):
+            return int(num)
+        else:
+            print("Please Input Correct Number(1~3)")
 
 
 def select_show_menu():
-    print()
-    print("###########################")
-    print("######### M.E.N.U #########")
-    print("###########################")
-    print("#    0. EXIT              #")
-    print("#    1. ALL_FILE_LIST     #")
-    print("#    2. MY_FILES          #")
-    print("#    3. RECENT            #")
-    print("#    4. SHARED            #")
-    print("#    5. RECYCLE_BIN       #")
-    print()
-    num = input("Select Menu: ")
-    return int(num)
-
+    while True:
+        print()
+        print("###########################")
+        print("######### M.E.N.U #########")
+        print("###########################")
+        print("#    0. EXIT              #")
+        print("#    1. ALL_FILE_LIST     #")
+        print("#    2. MY_FILES          #")
+        print("#    3. RECENT            #")
+        print("#    4. SHARED            #")
+        print("#    5. RECYCLE_BIN       #")
+        print()
+        num = input("Select Menu: ")
+        if (int(num) >= 0 and int(num) <= 5):
+            return int(num)
+        else:
+            print("Please Input Correct Number(1~5)")
 
 
 def search_menu():
-    print()
-    print("###########################")
-    print("####### S.E.A.R.C.H #######")
-    print("###########################")
-    print("#    0. EXIT              #")
-    print("#    1. String Search     #")
-    print("#    2. Period            #")
-    print("#    3. User              #")
-    print()
-    num = int(input("Select Menu: "))
-    return num
-
+    while True:
+        print()
+        print("###########################")
+        print("####### S.E.A.R.C.H #######")
+        print("###########################")
+        print("#    0. EXIT              #")
+        print("#    1. String Search     #")
+        print("#    2. Period            #")
+        print("#    3. User              #")
+        print()
+        num = int(input("Select Menu: "))
+        if (int(num) >= 0 and int(num) <= 3):
+            return int(num)
+        else:
+            print("Please Input Correct Number(1~3)")
 
 
 def show_file_list(file_list):
