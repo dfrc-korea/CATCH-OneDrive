@@ -117,3 +117,11 @@ CATCH uses the Internal API to collect thumbnails of files (if exist) and the th
 
 ## Downloaded Files
 Files downloaded using the file index are stored in the './download' folder.
+
+# Issues and Future Work
+
+CATCH Internal - OneDrive is an early version and has several issues.
+
+1. System Management - Error Handling
+2. Analysis and Implementation of 2-Factor Authentication Methods Different Countries
+3. Download Error: If you cannot download it through the file index, you must give a time interval or enter the download URL directly on the web. Further analysis is in progress.
