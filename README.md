@@ -55,3 +55,18 @@ Installing the Requirements Library to Run in PowerShell:
 ```
 .\build.ps1
 ```
+
+# Usage
+## Run
+Open Folder:
+```
+cd CATCH_OneDrive
+```
+
+Activate venv:
+```
+cd venv\Scripts
+Activate.bat
+cd ..\..
+python CATCH_Cloud_Core.py
+```
