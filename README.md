@@ -122,7 +122,7 @@ Files downloaded using the file index are stored in the './download' folder.
 
 # Issues and Future Work
 
-CATCH Internal - OneDrive is an early version and has several issues.
+**CATCH Internal - OneDrive** is an early version and has several issues.
 
 1. System Management - Error Handling
 2. Analysis and Implementation of 2-Factor Authentication Methods Different Countries
