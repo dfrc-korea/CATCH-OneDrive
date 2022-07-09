@@ -82,6 +82,8 @@ python CATCH_Cloud_Core.py
 CATCH can log in to OneDrive using the user credentials. Collect authentication information during the login process.
 CATCH can also log in using **2-Factor**.
 
+**Currently, only OneDrive is available**
+
 ### Show File List
 
 ![jpg_2](./usage_step/show_file_list.jpg)
