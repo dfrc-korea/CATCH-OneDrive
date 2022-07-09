@@ -82,7 +82,12 @@ class CA_Core():
 
     def __set_default(self):
         CA_log.set_loglevel(self.__loglevel)
-        self.__service = int(cd.select_cloud())
+        while True:
+            try:
+                self.__service = int(cd.select_cloud())
+                break
+            except:
+                PRINTE("Please Input Correct Number(1~5)")
         if self.__service != 2:
             PRINTI("Under Development....")
             return CA_ERROR
