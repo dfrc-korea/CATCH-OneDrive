@@ -99,7 +99,7 @@ class Personal_Vault:
         """
         try:
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(headless=False)
+                browser = playwright.chromium.launch(headless=True)
                 context = browser.new_context()
 
                 # Open new page
@@ -895,7 +895,7 @@ class Personal_Vault:
 
     def __remake_file_list(self, file_list, id='root', final_file_list=[], qt=''):
         folder_list = []
-        # json 파일 떨구기
+        # make Json
         if qt == 'recyclebin':
             name_id = 'recyclebin'
         elif qt == 'sharedby':
