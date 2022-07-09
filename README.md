@@ -92,4 +92,6 @@ CATCH show a list of files in five categories.
 
 #### Search
 
+![png_1](./usage_step/search.png)
+
 #### Download
