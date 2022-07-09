@@ -94,4 +94,9 @@ CATCH show a list of files in five categories.
 
 ![png_1](./usage_step/search.png)
 
+CATCH provides the following search functions.
+1. String Search: String search using Request URL.
+2. Period: Data in a specific period is searched using metadata.
+3. User Name: User Name search using metadata.
+
 #### Download
