@@ -63,7 +63,7 @@ Open Folder:
 cd CATCH_OneDrive
 ```
 
-Activate venv:
+Activate venv(if not activated):
 ```
 cd venv\Scripts
 Activate.bat
