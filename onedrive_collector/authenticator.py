@@ -16,25 +16,28 @@
 Description
 ===========
 
-    OneDrive Internal APIs 를 사용하기 위해 필요한 인증정보(cookie, parameter, header) 수집하는 모듈
+    A module that collects credentials (cookie, parameter, header) required to use OneDrive Internal APIs
 
-    도구이름    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
-    프로젝트    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
-    연구기관    : 고려대학교(Korea Univ.)\n
+    Tool        : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
+    Project     : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
+    Research    : Korea Univ. Digital Forensic Research Center(DFRC)\n
 
 History
 ===========
 
-    * 2022-05-18 : 초기 버전
-    * 2022-06-01 : *로그인 Personal 만 가능하게 수정 -- 추후 변경 여부 파악
-    * 2022-06-13 : 코드 안정화 -- add login wait time(sol>> cid, caller)
-    * 2022-06-22 : 개인 중요 보관소 제거
+    * 2022-05-18 : 1st Version
+    * 2022-06-01 : Login
+    * 2022-06-13 : Add login wait time(sol>> cid, caller)
 
 """
 
 from module.CATCH_Cloud_Define import *
 
 class Authentication:
+    """Authentication Class
+
+        .. note::  To collect authentication information, attempt to login using browser automation
+    """
     def __init__(self, credential):
         self.__id = credential[0]
         self.__password = credential[1]
@@ -47,6 +50,17 @@ class Authentication:
         self.__header_canary = None
 
     def run(self):
+        """Authentication run method
+
+                .. note::  Parse authentication information \n
+                    login() : Login using Browser Automation \n
+                    set_auth_value() : Collect essential values(Cookie: WLSSC, msa_auth) \n
+                    set_header_value() : Collect essential values using Request(Header value: Canary) \n
+
+                :return:
+                    success  --  CA_OK
+                    fail     --  CA_ERROR
+        """
         if self.__login() == CA_ERROR:
             PRINT('Login Error')
             return CA_ERROR
@@ -63,7 +77,6 @@ class Authentication:
     def __login(self):
         try:
             with sync_playwright() as playwright:
-                # TRUE = 화면 안보임, FALSE = 화면 보임
                 browser = playwright.chromium.launch(headless=True)
                 context = browser.new_context()
 
@@ -84,6 +97,7 @@ class Authentication:
                 page.wait_for_timeout(1000)
                 try:
                     if page.frame_locator("section[role=\"main\"] iframe").locator("text=We need a little more help").is_visible():
+                        # CATCH select personal default (Changeable)
                         #p_or_b = input(Colors.YELLOW + "[>>] Which Account? Business: 1, Personal: 2  >>" + Colors.RESET)
                         p_or_b = 2
                         if p_or_b == 1:
@@ -143,7 +157,7 @@ class Authentication:
                     PRINTI(page.locator("xpath=//*[@id=\"idDiv_SAOTCAS_Description\"]").text_content())
                     factor2 = input("Please press Enter when approval is completed.")
 
-                # 영구 저장 '아니오' 클릭
+                # Click on 'No' to save permanently
                 with page.expect_navigation():
                     page.locator("text=No").click()
                 page.wait_for_timeout(1000)
@@ -159,9 +173,6 @@ class Authentication:
 
                 self.__caller = page.url[page.url.find("cid=") + 4:]
                 self.__all_cookies = page.context.cookies()
-
-                # context.close()
-                # browser.close()
 
                 return CA_OK
 
@@ -188,6 +199,10 @@ class Authentication:
         return CA_OK
 
     def __set_header_value(self):
+        """
+            .. note:: Need to parse javascript(response)
+
+        """
         cookies = {
             'WLSSC': self.__cookie_wlssc,
         }

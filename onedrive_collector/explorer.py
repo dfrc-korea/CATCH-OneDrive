@@ -16,18 +16,17 @@
 Description
 ===========
 
-    OneDrive Internal APIs 를 사용해서 OneDrive에 저장된 데이터 파싱하는 모듈
+    Modules that use OneDrive Internal APIs to parse data stored on OneDrive
 
-    도구이름    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
-    프로젝트    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
-    연구기관    : 고려대학교(Korea Univ.)\n
+    Tool        : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
+    Project     : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
+    Research    : Korea Univ. Digital Forensic Research Center(DFRC)\n
 
 History
 ===========
 
-    * 2022-05-18 : 초기 버전
-    * 2022-05-27 : 썸네일 다운로드
-    * 2022-06-05 : 파일 버전 획득
+    * 2022-05-18 : 1st Version
+    * 2022-05-27 : Download Thumbnails
 
 """
 
@@ -35,19 +34,28 @@ from onedrive_collector.authenticator import *
 from tqdm import tqdm
 
 class Exploration:
+    """Exploration Class
+
+        .. note::  Explore data stored on OneDrive by category.
+                 Category   --  My Files
+                            --  Recent
+                            --  Shared
+                            --  Recycle Bin
+                            --  Thumbnails
+    """
 
     def __init__(self, auth_data):
         """
-            :param list auth_data: auth_data from authenticator.py
+            :param class auth_data: auth_data from authenticator.py
         """
         self.__auth_data = auth_data
-        self.__normal_file_list = []
+        self.__normal_file_list = []        # My Files
         self.__number_of_normal_file = None
-        self.__recycle_file_list = []
+        self.__recycle_file_list = []       # Recycle Bin
         self.__number_of_recycle_file = None
-        self.__shared_file_list = []
+        self.__shared_file_list = []        # Shared
         self.__number_of_shared_file = None
-        self.__recent_file_list = []
+        self.__recent_file_list = []        # Recent
         self.__number_of_recent_file = None
         self.__version_history = []
         self.__total_file_list = []
@@ -59,6 +67,21 @@ class Exploration:
         self.__folder_list = []
 
     def run(self):
+        """Exploration run method
+
+                .. note::  Explore Data stored on OneDrive \n
+                    set_normal_file_list() : Request [My Files] Data and Parse JSON \n
+                    set_recycle_file_list() : Request [Recycle Bin] Data and Parse JSON \n
+                    set_shared_file_list() : Request [Shared] Data and Parse JSON \n
+                    set_recent_file_list() : Request [Recent] Data and Parse JSON \n
+                    combine_file_list()  : Combine all categories of data \n
+                    devide_file_list() : Separate files and folders. \n
+                    download_thumbnails() : Request a thumbnail for each file. \n
+
+                :return:
+                    explore success  --  CA_OK
+                    explore fail     --  CA_ERROR
+        """
         if self.__set_normal_file_list() == CA_ERROR:
             PRINT('Set Normal File List Error')
             return CA_ERROR
@@ -86,9 +109,6 @@ class Exploration:
         if self.__download_thumbnails() == CA_ERROR:
             PRINT('Collecting Thumbnails Error')
             return CA_ERROR
-
-        # if self.__set_version_history() == CA_ERROR:
-        #     return CA_ERROR
 
         return CA_OK
 
@@ -193,7 +213,7 @@ class Exploration:
 
     def __remake_file_list(self, file_list, id='root', final_file_list=[], qt=''):
         folder_list = []
-        # json 파일 떨구기
+        # Make JSON file
         if qt == 'recyclebin':
             name_id = 'recyclebin'
         elif qt == 'sharedby':
@@ -219,7 +239,7 @@ class Exploration:
         if file_list['items'][0]['id'] == 'root':
             for child in children:
                 if child['itemType'] == 32:
-                    if child['name'] == '개인 중요 보관소' and self.__flag == 0:
+                    if child.get('vault') is not None:
                         pass
                     else:
                         final_file_list.append(child)

@@ -8,10 +8,8 @@ class OneDrive_connector:
         pass
 
     def excute(self, credential):
-        # Personal Vault 사용 금지 - 내부 에러 존재
-        print("Personal Vault is only available for Korean accounts. Updating in progress.")
         self.__flag = int(input("Do you want open \'PERSONAL VAULT\'? (1:Yes, 0:No) >>"))
-        # self.__flag = 0
+
         PRINTI("Start OneDrive Module")
         if self.__flag == 0:
             a, a_result = self.__call_auth(credential)

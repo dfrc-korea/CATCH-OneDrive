@@ -16,17 +16,17 @@
 Description
 ===========
 
-    OneDrive Personal Vault 까지 포함한 데이터 수집을 위한 모듈
+    Module for collecting data stored OneDrive with Personal Vault
 
-    도구이름    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
-    프로젝트    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
-    연구기관    : 고려대학교(Korea Univ.)\n
+    Tool        : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
+    Project     : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
+    Research    : Korea Univ. Digital Forensic Research Center(DFRC)\n
 
 History
 ===========
 
-    * 2022-06-23 : 초기 버전
-    * 2022-06-23 : 개인 중요 보관소 추가 --> playwright 버그 존재 창 띄우면서 해야 가끔 됨
+    * 2022-06-23 : 1st Version
+    * 2022-06-23 : Add Personal Vault --> playwright bug exists, You have to open a window
 
 """
 
@@ -35,6 +35,11 @@ import module.Cloud_Display as cd
 from tqdm import tqdm
 
 class Personal_Vault:
+    """Personal_Vault Class
+
+        .. note::  For Personal Vault, Browser Automation must be open in all processes.
+                   This class do Authentication, Exploration, Filtering, Collection
+    """
     def __init__(self, credential):
         self.__id = credential[0]
         self.__password = credential[1]
@@ -62,6 +67,7 @@ class Personal_Vault:
         self.__folder_list = []
         self.__flag = 1
         self.__show_file_list = None
+        self.__vault_name = None
 
     def run(self):
         if self.__login() == CA_ERROR:
@@ -71,9 +77,28 @@ class Personal_Vault:
         return CA_OK
 
     def __login(self):
+        """Personal_Vault login method
+
+                .. note::  Main method in Personal_Vault Class. \n
+                           Log in using user credential and Browser Automation\n
+
+                    set_auth_value() : Collect essential values(Cookie: WLSSC, msa_auth) \n
+                    set_header_value() : Collect essential values using Request(Header value: Canary) \n
+                    set_normal_file_list() : Request [My Files] Data and Parse JSON \n
+                    set_recycle_file_list() : Request [Recycle Bin] Data and Parse JSON \n
+                    set_shared_file_list() : Request [Shared] Data and Parse JSON \n
+                    set_recent_file_list() : Request [Recent] Data and Parse JSON \n
+                    combine_file_list()  : Combine all categories of data \n
+                    devide_file_list() : Separate files and folders. \n
+                    download_thumbnails() : Request a thumbnail for each file. \n
+                    run_collector() : Provides various functions to the user. \n
+
+                :return:
+                    explore success  --  CA_OK
+                    explore fail     --  CA_ERROR
+        """
         try:
             with sync_playwright() as playwright:
-                # TRUE = 화면 안보임, FALSE = 화면 보임
                 browser = playwright.chromium.launch(headless=False)
                 context = browser.new_context()
 
@@ -95,6 +120,7 @@ class Personal_Vault:
                 try:
                     if page.frame_locator("section[role=\"main\"] iframe").locator(
                             "text=We need a little more help").is_visible():
+                        # CATCH select personal default (Changeable)
                         # p_or_b = input(Colors.YELLOW + "[>>] Which Account? Business: 1, Personal: 2  >>" + Colors.RESET)
                         p_or_b = 2
                         if p_or_b == 1:
@@ -119,7 +145,12 @@ class Personal_Vault:
 
                 page.wait_for_timeout(500)
                 # SMS, E-mail
-                if page.locator("text=Verify your identity").is_visible():
+                if page.query_selector("xpath=//*[@id=\"idDiv_SAOTCS_Title\"]") is None:
+                    flag = 0
+                else:
+                    flag = 1
+
+                if flag == 1:
                     factor2_texts = page.locator("div[role=\"button\"]").all_inner_texts()
                     cnt = 1
                     if len(factor2_texts) > 1:
@@ -134,6 +165,7 @@ class Personal_Vault:
                             page.locator("div[role=\"button\"]").click()
 
                     page.wait_for_timeout(500)
+                    title = page.locator("xpath=//*[@id=\"idDiv_SAOTCS_Title\"]").inner_text()
                     if page.locator("text=Verify your phone number").is_visible():
                         # SMS
                         PRINTI(page.locator("xpath=//*[@id=\"idDiv_SAOTCS_ProofConfirmationDesc\"]").text_content())
@@ -146,37 +178,61 @@ class Personal_Vault:
 
                     page.wait_for_timeout(500)
                     factor2 = input("Enter code >>")
-                    page.locator("[placeholder=\"Code\"]").click()
-                    page.locator("[placeholder=\"Code\"]").fill(factor2)
-                    page.locator("input:has-text(\"Verify\")").click()
+                    page.locator("xpath=//*[@id=\"idTxtBx_SAOTCC_OTC\"]").click()
+                    page.locator("xpath=//*[@id=\"idTxtBx_SAOTCC_OTC\"]").fill(factor2)
+                    page.locator("//*[@id=\"idSubmit_SAOTCC_Continue\"]").click()
 
                 elif page.locator("text=Approve sign in request").is_visible():
                     # App Login
                     PRINTI(page.locator("xpath=//*[@id=\"idDiv_SAOTCAS_Description\"]").text_content())
                     factor2 = input("Please press Enter when approval is completed.")
 
-                # 영구 저장 '아니오' 클릭
                 with page.expect_navigation():
                     page.locator("text=No").click()
                 page.wait_for_timeout(1000)
-                # 개인 중요 보관소 open
+
+                while True:
+                    self.__caller = page.url[page.url.find("cid=") + 4:]
+                    self.__all_cookies = page.context.cookies()
+
+                    page.wait_for_timeout(1000)
+
+                    if self.__set_auth_value() == CA_ERROR:
+                        PRINT('Set Authentication Value Error')
+                        continue
+
+                    if self.__set_header_value() == CA_ERROR:
+                        PRINT('Set Header Value Error')
+                        continue
+
+                    if self.__set_vault_name() == CA_ERROR:
+                        PRINT('Set Vault Name Error. Please Wait')
+                        continue
+                    else:
+                        break
 
                 PRINT("Personal Vault requires an authentication code. Please enter the following contents.")
-                time.sleep(1)
-                with page.expect_navigation():
-                    with page.expect_popup() as popup_info:
-                        page.locator("text=개인 중요 보관소").click()
-                        page.wait_for_timeout(1000)
-                    page1 = popup_info.value
+                # with page.expect_navigation():
+                with page.expect_popup() as popup_info:
+                    page.locator("text=" + self.__vault_name).click()
+                    page.wait_for_timeout(1000)
+                page1 = popup_info.value
 
-                if page1.locator("text=본인 여부 확인").is_visible():
+                if page1.query_selector("xpath=//*[@id=\"idDiv_SAOTCS_Title\"]") is None:
+                    if page1.query_selector("xpath=//*[@id=\"idDiv_SAOTCAS_Description\"]") is None:
+                        flag = 0
+                    else:
+                        flag = 2
+                else:
+                    flag = 1
+                if flag == 1:
                     factor2_texts = page1.locator("div[role=\"button\"]").all_inner_texts()
                     cnt = 1
                     if len(factor2_texts) > 1:
                         for factor2_text in factor2_texts:
                             PRINTI(str(cnt) + '. ' + factor2_text.replace('\n', ''))
                             cnt += 1
-                        factor2_cnt = input("몇 번째로 인증하시겠습니까? >> ")
+                        factor2_cnt = input("What number would you like to use to authenticate? >> ")
                         page1.locator("div[role=\"button\"]").locator(
                             "text =" + factor2_texts[int(factor2_cnt) - 1].replace('\t', '').replace('\n','')).click()
                     else:
@@ -184,10 +240,14 @@ class Personal_Vault:
                             page1.locator("div[role=\"button\"]").click()
                     page1.wait_for_timeout(500)
 
-                    if page1.locator("text=전화 번호 확인").is_visible():
+                    if page1.query_selector("xpath=//*[@id=\"idDiv_SAOTCS_ProofConfirmationDesc\"]") is None:
+                        aflag = 0
+                    else:
+                        aflag = 1
+                    if aflag == 1:
                         # SMS
                         PRINTI(page1.locator("xpath=//*[@id=\"idDiv_SAOTCS_ProofConfirmationDesc\"]").text_content())
-                        factor2_sms = input("전화 번호 마지막 4자리를 넣어주세요 >>")
+                        factor2_sms = input("Last 4 digits of phone number >>")
                         page1.locator("xpath=//*[@id=\"idTxtBx_SAOTCS_ProofConfirmation\"]").fill(factor2_sms)
                         page1.locator("xpath=//*[@id=\"idSubmit_SAOTCS_SendCode\"]").click()
                     else:
@@ -195,15 +255,17 @@ class Personal_Vault:
                         PRINTI(page1.locator("xpath=//*[@id=\"idDiv_SAOTCC_Description\"]").text_content())
 
                     page1.wait_for_timeout(500)
-                    factor2 = input("코드를 넣어주세요 >>")
-                    page1.locator("[placeholder=\"코드\"]").click()
-                    page1.locator("[placeholder=\"코드\"]").fill(factor2)
-                    page1.locator("input:has-text(\"확인\")").click()
+                    factor2 = input("Enter code >>")
+                    page1.locator("xpath=//*[@id=\"idTxtBx_SAOTCC_OTC\"]").click()
+                    page1.locator("xpath=//*[@id=\"idTxtBx_SAOTCC_OTC\"]").fill(factor2)
+                    page1.locator("//*[@id=\"idSubmit_SAOTCC_Continue\"]").click()
 
-                elif page1.locator("text=로그인 요청 승인").is_visible():
+                elif flag == 2:
                     # App Login
                     PRINTI(page1.locator("xpath=//*[@id=\"idDiv_SAOTCAS_Description\"]").text_content())
-                    factor2 = input("승인이 완료되면 엔터를 눌러주세요.")
+                    factor2 = input("Please press Enter when approval is completed.")
+
+
 
                 # ---------------------
                 page.wait_for_timeout(1000)
@@ -251,9 +313,6 @@ class Personal_Vault:
                 if self.__download_thumbnails() == CA_ERROR:
                     PRINT('Collecting Thumbnails Error')
                     return CA_ERROR
-
-                # if self.__set_version_history() == CA_ERROR:
-                #     return CA_ERROR
 
                 if self.__run_collector() == CA_ERROR:
                     return CA_ERROR
@@ -330,6 +389,11 @@ class Personal_Vault:
         return CA_OK
 
     def search_file_by_name(self, q):
+        """
+            .. note::  User Name is searched using metadata. \n
+
+            :param str q: Name of the user you want to search for
+        """
         search_result = []
         name = q
 
@@ -340,13 +404,23 @@ class Personal_Vault:
         return self.show_file_list_local(search_result, "SEARCH")
 
     def search_file_by_date(self, start, end):
+        """
+            .. note::  Data in a specific period is searched using metadata. \n
+
+            :param str start: start date
+            :param str end: end date
+        """
         search_result = []
         s_time = datetime.datetime.strptime(start, "%Y-%m-%d")
         e_time = datetime.datetime.strptime(end, "%Y-%m-%d")
 
         for file in self.__file_list:
-            c_time = datetime.datetime.strptime(file['displayCreationDate'], "%Y-%m-%d")
-            m_time = datetime.datetime.strptime(file['displayModifiedDate'], "%Y-%m-%d")
+            try:
+                c_time = datetime.datetime.strptime(file['displayCreationDate'], "%Y-%m-%d")
+                m_time = datetime.datetime.strptime(file['displayModifiedDate'], "%Y-%m-%d")
+            except:
+                c_time = datetime.datetime.strptime(file['displayCreationDate'], "%m/%d/%Y")
+                m_time = datetime.datetime.strptime(file['displayModifiedDate'], "%m/%d/%Y")
 
             if s_time <= c_time and c_time <= e_time:
                 search_result.append(file)
@@ -358,14 +432,15 @@ class Personal_Vault:
         return self.show_file_list_local(search_result, "SEARCH")
 
     def show_file_list_local(self, file_folder_list, type):
-        """Search 결과 출력 메소드
+        """
+            .. note::  Desired file list is changed to a predetermined output form and output. \n
 
-                        .. note::  일반 출력과 다르게 검색된 결과만 출력 \n
+            :param list file_folder_list: Desired file list
+            :param str type: file list type
 
-                        :return:
-                            no file     --  None
-                            file exist  --  File list
-                """
+            :return:
+                print file and folder list
+        """
         result = list()
         result.append(['file name', 'size(bytes)', 'mimeType', 'createdTime(UTC+9)', 'modifiedTime(UTC+9)', 'file id',
                        'personal?', 'downloadURL'])
@@ -443,6 +518,11 @@ class Personal_Vault:
                                 numalign="left"))
 
     def search_file(self, q):
+        """
+            .. note::  String search using Request URL. \n
+
+            :param str q: String you want to search for
+        """
         search_result = []
         search_response = self.__request_search_file(q)
         if search_response['items'][0]['folder']['childCount'] == 0:
@@ -483,19 +563,21 @@ class Personal_Vault:
                                 cookies=cookies,
                                 verify=False)
 
-        ## 검색 결과 디버깅
-        # if not (os.path.isdir('./search_results')):
-        #     os.makedirs('./search_results')
-        #
-        # with open('.//search_results/search_' + q + '.json', 'w', encoding='utf-8') as make_file:
-        #     json.dump(json.loads(response.text), make_file, ensure_ascii=False, indent='\t')
-        # PRINT('Extract json file done. >> search_' + q + '.json')
-
         return json.loads(response.text)
 
     def download_file(self, file_num):
-        download_url = self.__show_file_list[file_num][7]
+        """
+            .. note::  Functions that request to download the selected file \n
+                       (using Download URL)
+
+            :param int file_num: Selected file index
+        """
+        download_url = self.__show_file_list[file_num][8]
         file_name = self.__show_file_list[file_num][0]
+
+        if download_url == "None":
+            PRINTI("Folder cannot be downloaded")
+            return
 
         host = download_url[download_url.find(r'//') + 2:download_url.find("com/") + 3]
         headers = {
@@ -522,8 +604,12 @@ class Personal_Vault:
             PRINTI("Download " + file_name + " Done")
         else:
             print("[!] Download_error!")
+            print("[!] Please click 'downloadURL' for download file!")
 
     def show_file_list(self):
+        """
+            .. note::  Show all file and folder stored on OneDrive \n
+        """
         cnt = 0
         new_list = []
         new_list = [self.__show_file_list[0]]
@@ -554,7 +640,11 @@ class Personal_Vault:
                                 numalign="left"))
 
     def __set_show_file_list(self):
+        """
+            .. note::  Only meaningful metadata is selected and normalized from all data. \n
+        """
         result = list()
+        # Select the desired metadata.
         result.append(['file name', 'size(bytes)', 'mimeType', 'createdTime(UTC+9)', 'modifiedTime(UTC+9)', 'file id',
                        'personal?', 'Deleted?', 'downloadURL'])
         for fol in self.__folder_list:
@@ -605,6 +695,9 @@ class Personal_Vault:
         self.__show_file_list = result
 
     def __set_auth_value(self):
+        """
+            .. note:: Collect essential values(Cookie: WLSSC, msa_auth)
+        """
         if len(self.__all_cookies) == 0:
             return CA_ERROR
 
@@ -623,6 +716,10 @@ class Personal_Vault:
         return CA_OK
 
     def __set_header_value(self):
+        """
+            .. note:: Collect essential values using Request(Header value: Canary)
+                      Need to read javascript(response)
+        """
         cookies = {
             'WLSSC': self.__cookie_wlssc,
         }
@@ -679,6 +776,23 @@ class Personal_Vault:
 
     def get_flag(self):
         return self.__flag
+
+    def __set_vault_name(self):
+        try:
+            file_list = self.__request_file_list()
+
+            root_folder = file_list['items'][0]['folder']
+            children = root_folder['children']
+
+            if file_list['items'][0]['id'] == 'root':
+                for child in children:
+                    if child.get('vault') is not None:
+                        self.__vault_name = child['name']
+                        return CA_OK
+
+        except Exception as e:
+            return CA_ERROR
+        return CA_OK
 
     def __set_normal_file_list(self):
         try:
@@ -807,7 +921,7 @@ class Personal_Vault:
         if file_list['items'][0]['id'] == 'root':
             for child in children:
                 if child['itemType'] == 32:
-                    if child['name'] == '개인 중요 보관소' and self.__flag == 0:
+                    if child.get('vault') is not None and self.__flag == 0:
                         pass
                     else:
                         final_file_list.append(child)

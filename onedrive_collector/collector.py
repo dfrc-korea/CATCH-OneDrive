@@ -16,29 +16,39 @@
 Description
 ===========
 
-    OneDrive Internal APIs 를 사용해서 원하는 기능을 제공하는 모듈
+    Modules that use OneDrive Internal APIs to provide the desired functionality
 
-    도구이름    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
-    프로젝트    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
-    연구기관    : 고려대학교(Korea Univ.)\n
+    Tool        : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
+    Project     : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
+    Research    : Korea Univ. Digital Forensic Research Center(DFRC)\n
 
 History
 ===========
 
-    * 2022-05-18 : 초기 버전 - 생성
-    * 2022-05-25 : 파일 목록 추가
-    * 2022-06-05 : 검색 기능 추가 (query using Internal API)
-    * 2022-06-16 : 다운로드 기능 추가
-    * 2022-06-23 : 기간 별 검색 기능 추가 (query using Metadata)
-
-    * 해야할 일들 : 휴지통 다운로드... 분석 및 구현....
+    * 2022-05-18 : 1st Version
+    * 2022-05-25 : Add Show File List
+    * 2022-06-05 : Add Search Function (query using Internal API)
+    * 2022-06-16 : Add Download Function
+    * 2022-06-23 : Add Search by Period (query using Metadata)
 
 """
 
 from onedrive_collector.explorer import *
 
 class Collector:
+    """Collector Class
+
+        .. note::  Provides various functions to the user.
+                 Function   --  Download
+                            --  String Search
+                            --  Period Search
+                            --  User Name Search
+    """
     def __init__(self, onedrive_data, auth_data):
+        """
+            :param class auth_data: auth_data from authenticator.py
+            :param class onedrive_data: Data stored in OneDrive from explorer.py
+        """
         self.__onedrive = onedrive_data
         self.__auth_data = auth_data
         self.__total_file_list, self.__file_list, self.__folder_list = self.__onedrive.get_total_file_list()
@@ -48,8 +58,19 @@ class Collector:
         return len(self.__total_file_list)
 
     def download_file(self, file_num):
+        """
+            .. note::  Functions that request to download the selected file \n
+                       (using Download URL)
+
+            :param int file_num: Selected file index
+        """
         download_url = self.__re_file_list[file_num][8]
         file_name = self.__re_file_list[file_num][0]
+
+        # Folder is not File
+        if download_url == "None":
+            PRINTI("Folder cannot be downloaded")
+            return
 
         host = download_url[download_url.find(r'//') + 2:download_url.find("com/") + 3]
         headers = {
@@ -75,17 +96,28 @@ class Collector:
 
             PRINTI("Download " + file_name + " Done")
         else:
+            # Sometimes it doesn't work --> Click downloadURL link
             print("[!] Download_error!")
             print("[!] Please click 'downloadURL' for download file!")
 
     def search_file_by_date(self, start, end):
+        """
+            .. note::  Data in a specific period is searched using metadata. \n
+
+            :param str start: start date
+            :param str end: end date
+        """
         search_result = []
         s_time = datetime.datetime.strptime(start, "%Y-%m-%d")
         e_time = datetime.datetime.strptime(end, "%Y-%m-%d")
 
         for file in self.__file_list:
-            c_time = datetime.datetime.strptime(file['displayCreationDate'], "%Y-%m-%d")
-            m_time = datetime.datetime.strptime(file['displayModifiedDate'], "%Y-%m-%d")
+            try:
+                c_time = datetime.datetime.strptime(file['displayCreationDate'], "%Y-%m-%d")
+                m_time = datetime.datetime.strptime(file['displayModifiedDate'], "%Y-%m-%d")
+            except:
+                c_time = datetime.datetime.strptime(file['displayCreationDate'], "%m/%d/%Y")
+                m_time = datetime.datetime.strptime(file['displayModifiedDate'], "%m/%d/%Y")
 
             if s_time <= c_time and c_time <= e_time:
                 search_result.append(file)
@@ -97,6 +129,9 @@ class Collector:
         return self.show_file_list_local(search_result, "SEARCH")
 
     def show_file_list(self):
+        """
+            .. note::  Show all file and folder stored on OneDrive \n
+        """
         cnt = 0
         new_list = []
         new_list = [self.__re_file_list[0]]
@@ -127,7 +162,11 @@ class Collector:
                                 numalign="left"))
 
     def set_file_list(self):
+        """
+            .. note::  Only meaningful metadata is selected and normalized from all data. \n
+        """
         result = list()
+        # Select the desired metadata.
         result.append(['file name', 'size(bytes)', 'mimeType', 'createdTime(UTC+9)', 'modifiedTime(UTC+9)', 'file id',
                        'personal?', 'Deleted?', 'downloadURL'])
         for fol in self.__folder_list:
@@ -178,14 +217,15 @@ class Collector:
         self.__re_file_list = result
 
     def show_file_list_local(self, file_folder_list, type):
-        """Search 결과 출력 메소드
+        """
+            .. note::  Desired file list is changed to a predetermined output form and output. \n
 
-                        .. note::  일반 출력과 다르게 선별된 결과만 출력 \n
+            :param list file_folder_list: Desired file list
+            :param str type: file list type
 
-                        :return:
-                            no file     --  None
-                            file exist  --  File list
-                """
+            :return:
+                print file and folder list
+        """
         result = list()
         result.append(['file name', 'size(bytes)', 'mimeType', 'createdTime(UTC+9)', 'modifiedTime(UTC+9)', 'file id',
                        'personal?', 'downloadURL'])
@@ -245,6 +285,7 @@ class Collector:
             name = file[0]
             mtype = file[2]
 
+            # If the name is more than 20 characters, it implies.
             if len(name) >= 20:
                 name = name[0:8] + '....' + name[-6:]
             if len(mtype) >= 20:
@@ -263,6 +304,11 @@ class Collector:
                                 numalign="left"))
 
     def search_file_by_name(self, q):
+        """
+            .. note::  User Name is searched using metadata. \n
+
+            :param str q: Name of the user you want to search for
+        """
         search_result = []
         name = q
 
@@ -274,6 +320,11 @@ class Collector:
 
 
     def search_file(self, q):
+        """
+            .. note::  String search using Request URL. \n
+
+            :param str q: String you want to search for
+        """
         search_result = []
         search_response = self.__request_search_file(q)
         if search_response['items'][0]['folder']['childCount'] == 0:
@@ -312,14 +363,6 @@ class Collector:
 
         response = requests.get('https://skyapi.onedrive.live.com/API/2/GetItems', params=params, headers=headers, cookies=cookies,
                                 verify=False)
-
-        ## 검색 결과 디버깅
-        # if not (os.path.isdir('./search_results')):
-        #     os.makedirs('./search_results')
-        #
-        # with open('.//search_results/search_' + q + '.json', 'w', encoding='utf-8') as make_file:
-        #     json.dump(json.loads(response.text), make_file, ensure_ascii=False, indent='\t')
-        # PRINT('Extract json file done. >> search_' + q + '.json')
 
         return json.loads(response.text)
 
