@@ -68,5 +68,9 @@ Activate venv:
 cd venv\Scripts
 Activate.bat
 cd ..\..
+```
+
+Run CATCH:
+```
 python CATCH_Cloud_Core.py
 ```
