@@ -81,6 +81,15 @@ python CATCH_Cloud_Core.py
 
 #### Show File List
 
+CATCH show a list of files in five categories.
+1. All File List: Data stored in all subcategories are integrally displayed.
+2. My Files: Contains regular file(s) and folder(s)
+3. Recent: Contains recently accessed files
+4. Shared: Contains files that are shared with other people
+5. Recycle Bin: Contains deleted file(s) and folder(s)
+
+![jpg_2](./usage_step/show_file_list.jpg)
+
 #### Search
 
 #### Download
