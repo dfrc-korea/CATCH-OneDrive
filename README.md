@@ -8,7 +8,7 @@ Investigative framework,
 **CATCH Internal** is a tool that implements data collection through the Internal API in the CATCH framework.
 
 #### CATCH Framework
-![Structure](CATCH Frameworks.png)
+![Structure](CATCH Framework.png)
 
 ##### Authentication
 Authentication for getting authentication data to call web APIs, in order to access cloud resources from endpoint clients.
