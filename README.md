@@ -39,6 +39,17 @@ git clone https://github.com/dfrc-korea/CATCH_OneDrive.git
 ```
 
 ## Install CATCH Internal - OneDrive
+To run CATCH, We must change Powershell Execution Policy.
+
+Execute Powershell as administrator:
+```
+Set-ExecutionPolicy Unrestricted
+```
+
+And enter
+```
+A
+```
 
 Installing the Requirements Library to Run in PowerShell:
 ```
