@@ -60,7 +60,7 @@ Installing the Requirements Library to Run in PowerShell:
 ## Run
 Open Folder:
 ```
-cd CATCH_OneDrive
+cd CATCH_Internal-OneDrive
 ```
 
 Activate venv(if not activated):
