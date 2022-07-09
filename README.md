@@ -75,11 +75,14 @@ python CATCH_Cloud_Core.py
 ```
 
 ## Step
-#### Login
+### Login
 
 ![jpg_1](./usage_step/login.jpg)
 
-#### Show File List
+CATCH can log in to OneDrive using the user credentials. Collect authentication information during the login process.
+CATCH can also log in using **2-Factor**.
+
+### Show File List
 
 ![jpg_2](./usage_step/show_file_list.jpg)
 
@@ -90,7 +93,7 @@ CATCH show a list of files in five categories.
 4. Shared: Contains files that are shared with other people
 5. Recycle Bin: Contains deleted file(s) and folder(s)
 
-#### Search
+### Search
 
 ![png_1](./usage_step/search.png)
 
@@ -99,4 +102,8 @@ CATCH provides the following search functions.
 2. Period: Data in a specific period is searched using metadata.
 3. User Name: User Name search using metadata.
 
-#### Download
+### Download
+
+![png_2](./usage_step/download.png)
+
+CATCH can download files by selecting a file index or typing the download url directly into the web.
