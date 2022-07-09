@@ -83,7 +83,7 @@ python CATCH_Cloud_Core.py
 
 ![jpg_2](./usage_step/show_file_list.jpg)
 
-**CATCH show a list of files in five categories.**
+CATCH show a list of files in five categories.
 1. All File List: Data stored in all subcategories are integrally displayed.
 2. My Files: Contains regular file(s) and folder(s)
 3. Recent: Contains recently accessed files
