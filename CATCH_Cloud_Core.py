@@ -15,11 +15,11 @@
 Description
 ===========
 
-    클라우드 스토리지에 저장된 데이터들 수집하는 도구
+    Module for collecting data stored on cloud storage
 
-    도구이름    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
-    프로젝트    : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
-    연구기관    : 고려대학교(Korea Univ.)\n
+    Tool        : Cloud Data Acquisition through Comprehensive and Hybrid Approaches(CATCH)\n
+    Project     : Cloud Data Acquisition through Comprehensive and Hybrid Approaches\n
+    Research    : Korea Univ. Digital Forensic Research Center(DFRC)\n
 
 Member
 ===========
@@ -29,8 +29,8 @@ Member
 History
 ===========
 
-    * 2022-05-18 Yang(DFRC): 초기 버전
-    * 2022-05-20 Yang(DFRC): OneDrive_connector 추가
+    * 2022-05-18 Yang(DFRC): 1st Version
+    * 2022-05-20 Yang(DFRC): Add OneDrive_connector
 
 Method
 ===========
@@ -40,7 +40,7 @@ import module.Cloud_Display as cd
 
 class CA_Core():
     """ CA_Core Class
-                "Core" Module의 메인 클래스
+                "Core" Module's Main Class
 
             >>> "Example Code"
                 CA_Core()
@@ -52,6 +52,17 @@ class CA_Core():
         self.__credential = None
 
     def run(self):
+        """CA_Core run method
+
+                .. note::  Start Core \n
+                    set_default() : set Cloud storage and User credential \n
+                    load_module() : Loads the selected cloud storage module. \n
+                    run_module() : Run the selected cloud storage module. \n
+
+                :return:
+                    success  --  True
+                    fail     --  False
+        """
         cd.start_tool()
 
         if self.__set_default() == CA_ERROR:
