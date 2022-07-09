@@ -107,3 +107,13 @@ CATCH provides the following search functions.
 ![png_2](./usage_step/download.png)
 
 CATCH can download files by selecting a file index or typing the download url directly into the web.
+
+# Output
+## Response - Stored Data(JSON)
+CATCH uses the Internal API to explore and collect data. JSON files corresponding to the response of the Request URL are stored in the './Json' folder.
+
+## Thumbnails
+CATCH uses the Internal API to collect thumbnails of files (if exist) and the thumbnails are stored in the './Thumbnails' folder
+
+## Downloaded Files
+Files downloaded using the file index are stored in the './download' folder.
