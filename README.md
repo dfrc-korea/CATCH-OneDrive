@@ -26,8 +26,8 @@ Collection for downloading contents of all or selected resources.
 # Building - Windows
 
 ## Python
-To build CATCH Internal - OneDrive, The Python 3.7.x is required.
-The Python 3.7.x must be registered in the system environment variable.
+To build CATCH Internal - OneDrive, The Python 3.7 or above.
+The Python 3.7 or above must be registered in the system environment variable.
 
 ## Git
 On Windows download git from:  [http://git-scm.com/download/win](http://git-scm.com/download/win)
