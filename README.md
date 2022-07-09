@@ -35,7 +35,7 @@ On Windows download git from:  [http://git-scm.com/download/win](http://git-scm.
 To get the source Using git run:
 
 ```
-https://github.com/dfrc-korea/CATCH_Internal-OneDrive.git
+git clone https://github.com/dfrc-korea/CATCH_Internal-OneDrive.git
 ```
 
 ## Install CATCH Internal - OneDrive
