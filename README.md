@@ -1,4 +1,4 @@
-# CATCH Internal - OneDrive
+# CATCH - OneDrive
 
 # INTRODUCTION
 
