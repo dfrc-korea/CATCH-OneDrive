@@ -5,7 +5,7 @@
 Investigative framework,
 **CATCH (Cloud Data Acquisition through Comprehensive and Hybrid Approaches)**, in order to explore, filter and collect all accessible metadata as well as contents from remote cloud servers by using both Open and Internal APIs.
 
-**CATCH Internal** is a tool that implements data collection through the Internal API in the CATCH framework. (Open API will be updated later.)
+**CATCH_OneDrive** is a tool that implements data collection through the Internal and Open APIs in the CATCH framework.
 
 #### CATCH Framework
 ![CATCH Framework](https://user-images.githubusercontent.com/40653523/178094378-4d2e5bd8-1f9f-4a88-b7ea-f8451c2c2def.png)
@@ -35,7 +35,7 @@ On Windows download git from:  [http://git-scm.com/download/win](http://git-scm.
 To get the source Using git run:
 
 ```
-git clone https://github.com/dfrc-korea/CATCH_Internal-OneDrive.git
+git clone https://github.com/dfrc-korea/CATCH_OneDrive.git
 ```
 
 ## Install CATCH Internal - OneDrive
@@ -69,12 +69,12 @@ cd venv\Scripts
 Activate.bat
 ```
 
-Run CATCH Internal:
+Run CATCH_OneDrive:
 ```
 python CATCH_Cloud_Core.py
 ```
 
-## Step
+## Step - Internal API
 ### Login
 
 ![jpg_1](./usage_step/login.jpg)
@@ -127,3 +127,6 @@ Files downloaded using the file index are stored in the './download' folder.
 1. System Management - Error Handling
 2. Analysis and Implementation of 2-Factor Authentication Methods Different Countries
 3. Download Error: If CATCH cannot download it through the file index, we must give a time interval or enter the download URL directly on the web. Further analysis is in progress.
+
+## Step - Open API
+(It will be updated.)
