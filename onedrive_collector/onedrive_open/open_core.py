@@ -3,6 +3,7 @@ from onedrive_collector.onedrive_open.open_API import *
 
 class OneDrive_Open:
     def __init__(self):
+        # It must be set by the User: redirect_uri, client_secret, client_id
         self.__redirect_uri = "http://localhost:8080/"
         self.__client_secret = "9-PA2Gjoq8It~4IhttDm0m_g.2.wLno0.4"
         self.__client_id = '2755a175-8423-49df-be40-c325a51a3d0d'
