@@ -206,7 +206,7 @@ class Exploration:
                 ('ps', 2000)
             )
 
-        response = requests.get('https://skyapi.onedrive.live.com/API/2/GetItem', headers=headers, params=params,
+        response = requests.get('https://skyapi.onedrive.live.com/API/2/GetItems', headers=headers, params=params,
                                 cookies=cookies, verify=False)
 
         if response.status_code == 404:
