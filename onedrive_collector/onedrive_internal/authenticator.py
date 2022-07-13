@@ -102,10 +102,12 @@ class Authentication:
                         p_or_b = 2
                         if p_or_b == 1:
                             with page.expect_navigation():
+                                # *[@id=``splitter"]/div[2]
                                 page.frame_locator("section[role=\"main\"] iframe").locator("text=Created by your IT department").click()
                                 PRINT('Access - Business')
                         else:
                             with page.expect_navigation():
+                                # *[@id=``splitter"]/div[3]
                                 page.frame_locator("section[role=\"main\"] iframe").locator("text=Created by you").nth(
                                     1).click()
                                 PRINT('Access - Personal')
@@ -113,7 +115,8 @@ class Authentication:
                         PRINT('Access')
                 except:
                     pass
-
+                
+                # *[@id=``i0118"]
                 page.locator("input[name=\"passwd\"]").fill(self.__password)
 
                 with page.expect_navigation():
