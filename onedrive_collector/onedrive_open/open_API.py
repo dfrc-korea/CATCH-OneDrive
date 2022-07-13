@@ -237,7 +237,6 @@ class OneDrive:
 
     def __list_changes(self, token):
         """Get Item list in OneDrive\n
-            .. note:: 리스팅을 하는 작업을 직접하는데 각각 내부의 요소가 존재\n
             item{
                 created_by: IdentitySet(class) -> createdBy\n
                 created_date_time: createdDataTime(dateTime)\n
