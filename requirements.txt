@@ -4,6 +4,7 @@ colorama==0.4.4
 greenlet==1.1.2
 idna==3.3
 mega.py==1.0.8
+onedrivesdk-fork==1.1.14
 pathlib==1.0.1
 playwright==1.22.0
 pycryptodome==3.14.1

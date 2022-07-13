@@ -30,7 +30,7 @@ History
 ===========
 
     * 2022-05-18 Yang(DFRC): 1st Version
-    * 2022-05-20 Yang(DFRC): Add OneDrive_connector
+    * 2022-05-20 Yang(DFRC): Add OneDrive_Internal_connector
 
 Method
 ===========
