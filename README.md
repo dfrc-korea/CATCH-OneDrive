@@ -3,8 +3,7 @@
 
 # INTRODUCTION
 
-Investigative framework,
-**CATCH (Cloud Data Acquisition through Comprehensive and Hybrid Approaches)**, in order to explore, filter and collect all accessible metadata as well as contents from remote cloud servers by using both Open and Internal APIs.
+**CATCH (Cloud Data Acquisition through Comprehensive and Hybrid Approaches)** framework was designed to explore, filter and collect all accessible metadata as well as contents from remote cloud servers by using both open and internal APIs.
 
 **CATCH_OneDrive** is a tool that implements data collection through the Internal and Open APIs in the CATCH framework.
 
