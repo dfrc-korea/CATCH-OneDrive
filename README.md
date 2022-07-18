@@ -137,6 +137,3 @@ Files downloaded using the file index are stored in the './download' folder.
 1. System Management - Error Handling
 2. Analysis and Implementation of 2-Factor Authentication Methods Different Countries
 3. Download Error: If CATCH cannot download it through the file index, we must give a time interval or enter the download URL directly on the web. Further analysis is in progress.
-
-## Step - Open API
-(It will be updated.)
