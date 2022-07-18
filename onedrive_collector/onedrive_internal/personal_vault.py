@@ -214,7 +214,7 @@ class Personal_Vault:
                 PRINT("Personal Vault requires an authentication code. Please enter the following contents.")
                 # with page.expect_navigation():
                 with page.expect_popup() as popup_info:
-                    page.locator("text=" + self.__vault_name).click()
+                    page.locator("text=" + self.__vault_name).last.click()
                     page.wait_for_timeout(1000)
                 page1 = popup_info.value
 
