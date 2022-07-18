@@ -210,7 +210,7 @@ class Exploration:
                                 cookies=cookies, verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         return json.loads(response.text)
@@ -325,7 +325,7 @@ class Exploration:
         response = requests.get(request_url, headers=headers, verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         self.__version_history.append(json.loads(response.text))
