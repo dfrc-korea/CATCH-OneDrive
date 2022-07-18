@@ -238,7 +238,7 @@ class Authentication:
                                 verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         self.__header_canary = response.content.split(b"FilesConfig=")[1].split(b',')[0].decode('unicode_escape')[11:-1]
