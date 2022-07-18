@@ -579,7 +579,7 @@ class Personal_Vault:
                                 verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         return json.loads(response.text)
@@ -772,7 +772,7 @@ class Personal_Vault:
                                 verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         self.__header_canary = response.content.split(b"FilesConfig=")[1].split(b',')[0].decode('unicode_escape')[11:-1]
@@ -912,7 +912,7 @@ class Personal_Vault:
                                 cookies=cookies, verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         return json.loads(response.text)
@@ -1027,7 +1027,7 @@ class Personal_Vault:
         response = requests.get(request_url, headers=headers, verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         self.__version_history.append(json.loads(response.text))
