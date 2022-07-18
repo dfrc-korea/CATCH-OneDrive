@@ -365,7 +365,7 @@ class Collector:
                                 verify=False)
 
         if response.status_code == 404:
-            PRINTE("Request URL is Changed")
+            PRINTE("The API may have changed.")
             return CA_ERROR
 
         return json.loads(response.text)
