@@ -161,6 +161,7 @@ class OneDrive:
 
     def __item_search(self, q):
         file_list = []
+        file_list.append(['id', 'file name', 'type', 'createdTime(+09:00)', 'modifiedTime(+09:00)', 'size', 'path'])
         collection_page = self.__client.item(drive='me', id='root').search(q).get()
         for item in collection_page:
             if item.file == None:
